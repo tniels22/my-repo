@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, HttpCode, HttpStatus, Res} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, HttpCode, HttpStatus, Res} from '@nestjs/common';
 
 @Controller('cocoa')
 export class CocoasController {
@@ -31,9 +31,13 @@ export class CocoasController {
         }
     */
     @Post()
-    @HttpCode()
     create(@Body() body) {
       return body;
+    }
 
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() body) {
+        return `This action updates #${id} coffee`;
+    }
     
 }
