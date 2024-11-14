@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CocoasController } from './cocoas/cocoas.controller';
 import { CocoasService } from './cocoas/cocoas.service';
+import { CocoasModule } from './cocoas/cocoas.module';
 
 @Module({
-  imports: [],
+  imports: [CocoasModule],
   controllers: [AppController, CocoasController],
   providers: [AppService, CocoasService],
 })
