@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Cocoa } from './entities/cocoa.entity';
+import { CreateCocoaDto } from './dto/create-cocoa.dto.ts/create-cocoa.dto';
+import { UpdateCocoaDto } from './dto/update-cocoa.dto.ts/update-cocoa.dto';
 
 @Injectable()
 export class CocoasService {
@@ -39,17 +41,33 @@ export class CocoasService {
     findAll(): Cocoa[] {
         return this.cocoas;
     }
-    findOne(id: string): Cocoa {
-        return this.cocoas.find(cocoa => cocoa.id === +id);
-    }
-    create(cocoa: Cocoa): Cocoa {
-        this.cocoas.push(cocoa);
+    // Use HttpException to throw a 404 error if the cocoa is not found
+    // findOne(id: string): Cocoa {
+    //     const cocoa = this.cocoas.find(cocoa => cocoa.id === +id);
+    //     if (!cocoa) {
+    //         throw new HttpException(`Cocoa #${id} not found`, HttpStatus.NOT_FOUND);
+    //     }
+    //     return cocoa;
+    // }
+    
+    // Helper Use NotFoundException to throw a 404 error if the cocoa is not found
+    findOne(id: string) {
+        const cocoa = this.cocoas.find(cocoa => cocoa.id === +id);
+        if (!cocoa) {
+            throw new NotFoundException(`Cocoa #${id} not found`);
+        }
         return cocoa;
     }
-    update(id: string, cocoa: Cocoa): Cocoa {
-        const index = this.cocoas.findIndex(cocoa => cocoa.id === +id);
-        this.cocoas[index] = cocoa;
-        return cocoa;
+    create(CreateCocoaDto : any) {
+        this.cocoas.push(CreateCocoaDto);
+        return CreateCocoaDto;
+    }
+
+    update(id: string, UpdateCocoaDto: any) {
+    const existingCocoa = this.findOne(id);
+        if (existingCocoa) {
+        // update the existing entity
+        }
     }
     remove(id: string): void {
         this.cocoas = this.cocoas.filter(cocoa => cocoa.id !== +id);

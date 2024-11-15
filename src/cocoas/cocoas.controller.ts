@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Patch, Param, Body, HttpCode, HttpStatus, Res, Query} from '@nestjs/common';
 import { CocoasService } from './cocoas.service';
 import { Cocoa } from './entities/cocoa.entity';
+import { CreateCocoaDto } from './dto/create-cocoa.dto.ts/create-cocoa.dto';
+import { UpdateCocoaDto } from './dto/update-cocoa.dto.ts/update-cocoa.dto';
 
 @Controller('cocoa')
 export class CocoasController {
@@ -25,8 +27,8 @@ export class CocoasController {
     }
 
     @Get('flavors')
-    findAllFlavors(): string {
-        return 'This action returns all cocoa flavors';
+    findAllFlavors(): Cocoa[] {
+        return this.cocoasService.findAll();
     }
 
     @Get(':id')
@@ -43,13 +45,13 @@ export class CocoasController {
     // }
     
     @Post()
-    create(@Body() body) {
-      return body;
+    create(@Body() CreateCocoaDto: CreateCocoaDto) {
+      return this.cocoasService.create(CreateCocoaDto);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() body) {
-        return `This action updates #${id} coffee`;
+    update(@Param('id') id: string, @Body() UpdateCocoaDto: UpdateCocoaDto) {
+        return this.cocoasService.update(id, UpdateCocoaDto);
     }
     
 }

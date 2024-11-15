@@ -7,7 +7,7 @@ import { CocoasModule } from './cocoas/cocoas.module';
 
 @Module({
   imports: [CocoasModule],
-  controllers: [AppController, CocoasController],
-  providers: [AppService, CocoasService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
