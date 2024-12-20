@@ -53,10 +53,10 @@ export class CocoasController {
     // // return `This action creates a coffee`;
     // }
 
-    // @Patch(':id')
-    // async update(@Param('id') id: string, @Body() UpdateCocoaDto: UpdateCocoaDto): Promise<Cocoa> {
-    //     const cocoa = await this.cocoasService.update(id, UpdateCocoaDto);
-    //     return cocoa;
-    // }
+    @Patch(':id')
+    async update(@Param('id') id: string, @Body() UpdateCocoaDto: UpdateCocoaDto): Promise<Cocoa> {
+        const cocoa = await this.cocoasService.update(id, UpdateCocoaDto);
+        return cocoa;
+    }
     
 }
