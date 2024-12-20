@@ -10,11 +10,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [CocoasModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: '127.0.0.1',
       port: 5432,
       username: 'postgres',
       password: 'postgres',
-      database: 'postgres',
+      database: 'cocoa_db',
       autoLoadEntities: true,
       synchronize: true,
     }),
