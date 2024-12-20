@@ -11,7 +11,7 @@ export class CreateCocoaDto {
     description: string;
 
     @IsString({ each: true })
-    flavor: string[];
+    flavors: string[];
 
     @IsNumber()
     price: number;

@@ -3,12 +3,15 @@ import { Cocoa } from './entities/cocoa.entity';
 import { CreateCocoaDto } from './dto/create-cocoa.dto.ts/create-cocoa.dto';
 import { UpdateCocoaDto } from './dto/update-cocoa.dto.ts/update-cocoa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { Flavor } from './entities/flavor.entity';
 @Injectable()
 export class CocoasService {
     constructor( 
         @InjectRepository(Cocoa)
         private readonly cocoasRepository: Repository<Cocoa>,
+        @InjectRepository(Flavor)
+        private readonly flavorRepository: Repository<Flavor>,
     ) {}
 
     private cocoas_list: Cocoa[] = [
@@ -68,7 +71,13 @@ export class CocoasService {
         return cocoa;
     }
     async create(CreateCocoaDto : CreateCocoaDto) {
-        const cocoa = await this.cocoasRepository.create(CreateCocoaDto);
+        const flavors = await Promise.all(
+            CreateCocoaDto.flavors.map(name => this.preloadFlavorByName(name)),
+        );
+        const cocoa = await this.cocoasRepository.create({
+            ...CreateCocoaDto,
+            flavors,
+        });
         return this.cocoasRepository.save(cocoa);
     }
 
@@ -86,5 +95,15 @@ export class CocoasService {
     async remove(id: string) {
         const cocoa = await this.findOne(+id);
         return this.cocoasRepository.remove(cocoa);
-    }  
+    } 
+
+    private async preloadFlavorByName(name: string): Promise<Flavor> {
+        const existingFlavor = await this.cocoasRepository.findOne({ 
+            where: {name},
+        });
+        // if (existingFlavor) {
+        //     return existingFlavor;
+        // }
+        return this.flavorRepository.create({ name });
+    }
 }

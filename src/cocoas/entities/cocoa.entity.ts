@@ -3,7 +3,6 @@ import { Flavor } from './flavor.entity';
 @Entity()
 
 export class Cocoa {
-    
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -16,13 +15,6 @@ export class Cocoa {
     @Column()
     description: string;
 
-    @JoinTable()
-    @ManyToMany( 
-        type => Flavor, 
-        (flavor) => flavor.cocoas
-    )
-    flavors: string[];
-
     @Column('decimal')
     price: number;
 
@@ -31,4 +23,14 @@ export class Cocoa {
 
     @Column()
     image: string;
+
+    @JoinTable()
+    @ManyToMany( 
+        type => Flavor, 
+        flavor => flavor.cocoas,
+        {
+            cascade: true, // [insert]
+        }
+    )
+    flavors: Flavor[];
 }
