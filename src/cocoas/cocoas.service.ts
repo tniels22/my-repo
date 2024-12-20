@@ -2,16 +2,22 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { Cocoa } from './entities/cocoa.entity';
 import { CreateCocoaDto } from './dto/create-cocoa.dto.ts/create-cocoa.dto';
 import { UpdateCocoaDto } from './dto/update-cocoa.dto.ts/update-cocoa.dto';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 @Injectable()
 export class CocoasService {
-    private cocoas: Cocoa[] = [
+    constructor( 
+        @InjectRepository(Cocoa)
+        private readonly cocoasRepository: Repository<Cocoa>,
+    ) {}
+
+    private cocoas_list: Cocoa[] = [
         {
             id: 1,
             name: 'Dark Chocolate',
             brand: 'Hershey',
             description: 'Dark chocolate is a form of chocolate containing cocoa solids, cocoa butter and sugar, without the milk found in milk chocolate.',
-            flavor: ['bitter', 'sweet'],
+            flavors: ['bitter', 'sweet'],
             price: 2.99,
             quantity: 100,
             image: 'https://images.unsplash.com/photo-1562887063-8c9b3a3a3f1e'
@@ -21,8 +27,8 @@ export class CocoasService {
             name: 'Milk Chocolate',
             brand: 'Cadbury',
             description: 'Milk chocolate is a solid chocolate confectionery containing cocoa, sugar and milk.',
-            flavor: ['sweet', 'milky'],
-            price: 1.99,
+            flavors: ['sweet', 'milky'],
+            price: 1.9,
             quantity: 200,
             image: 'https://images.unsplash.com/photo-1562887063-8c9b3a3a3f1e'
         },
@@ -31,47 +37,54 @@ export class CocoasService {
             name: 'White Chocolate',
             brand: 'Lindt',
             description: 'White chocolate is a chocolate confection, pale ivory in color, made from cocoa butter, sugar, milk solids and sometimes vanilla.',
-            flavor: ['sweet', 'milky'],
+            flavors: ['sweet', 'milky'],
             price: 3.99,
             quantity: 50,
             image: 'https://images.unsplash.com/photo-1562887063-8c9b3a3a3f1e'
         }
     ];
 
-    findAll(): Cocoa[] {
-        return this.cocoas;
+    async findAll() {
+        return this.cocoasRepository.find({
+            relations: {
+                flavors: true,
+            },
+        }
+        );
     }
-    // Use HttpException to throw a 404 error if the cocoa is not found
-    // findOne(id: string): Cocoa {
-    //     const cocoa = this.cocoas.find(cocoa => cocoa.id === +id);
-    //     if (!cocoa) {
-    //         throw new HttpException(`Cocoa #${id} not found`, HttpStatus.NOT_FOUND);
-    //     }
-    //     return cocoa;
-    // }
     
-    // Helper Use NotFoundException to throw a 404 error if the cocoa is not found
-    findOne(id: string) {
-        const cocoa = this.cocoas.find(cocoa => cocoa.id === +id);
+    async findOne(id: number) {
+        const cocoa = await this.cocoasRepository.findOne({ 
+            where: { id: +id},
+            relations: {
+                flavors: true,
+            }
+        });
         if (!cocoa) {
-            throw new NotFoundException(`Cocoa #${id} not found`);
+            // Use HttpException to throw a 404 error if the cocoa is not found
+            // throw new HttpException(`Cocoa #${id} not found`, HttpStatus.NOT_FOUND);
+            throw new NotFoundException(`Cocoa #${id} not found`); // Helper -> NotFoundException
         }
         return cocoa;
     }
-    create(CreateCocoaDto : any) {
-        this.cocoas.push(CreateCocoaDto);
-        return CreateCocoaDto;
+    async create(CreateCocoaDto : CreateCocoaDto) {
+        const cocoa = await this.cocoasRepository.create(CreateCocoaDto);
+        return this.cocoasRepository.save(cocoa);
     }
 
-    update(id: string, UpdateCocoaDto: any) {
-    const existingCocoa = this.findOne(id);
-        if (existingCocoa) {
-        // update the existing entity
-        }
-    }
-    remove(id: string): void {
-        this.cocoas = this.cocoas.filter(cocoa => cocoa.id !== +id);
+    // async update(id: string, UpdateCocoaDto: UpdateCocoaDto) {
+    //     const existingCocoa = this.cocoasRepository.preload({
+    //         id: +id,
+    //         ...UpdateCocoaDto,
+    //     });
+    //     if (!existingCocoa) {
+    //         throw new NotFoundException(`Cocoa #${id} not found`);
+    //     }
+    //     return this.cocoasRepository.save(existingCocoa);
+    // }
+
+    async remove(id: string) {
+        const cocoa = await this.findOne(+id);
+        return this.cocoasRepository.remove(cocoa);
     }  
-    
-
 }

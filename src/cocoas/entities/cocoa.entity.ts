@@ -1,6 +1,5 @@
-import { cp } from 'fs';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Flavor } from './flavor.entity';
 @Entity()
 
 export class Cocoa {
@@ -17,10 +16,14 @@ export class Cocoa {
     @Column()
     description: string;
 
-    @Column('json', { array: true })
-    flavor: string[];
+    @JoinTable()
+    @ManyToMany( 
+        type => Flavor, 
+        (flavor) => flavor.cocoas
+    )
+    flavors: string[];
 
-    @Column()
+    @Column('decimal')
     price: number;
 
     @Column()
