@@ -8,6 +8,7 @@ import { Flavor } from './entities/flavor.entity';
 @Module({
     imports: [TypeOrmModule.forFeature([Cocoa, Flavor])],
     controllers: [CocoasController],
-    providers: [CocoasService]
+    providers: [CocoasService],
+    exports: [CocoasService]
 })
 export class CocoasModule {}

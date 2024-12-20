@@ -7,7 +7,7 @@ export class Cocoa {
     id: number;
 
     @Column()
-    name: string;
+    title: string;
 
     @Column()
     brand: string;
@@ -33,4 +33,5 @@ export class Cocoa {
         }
     )
     flavors: Flavor[];
+    recommendations: any;
 }

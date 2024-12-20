@@ -3,6 +3,7 @@ import { CocoasService } from './cocoas.service';
 import { Cocoa } from './entities/cocoa.entity';
 import { CreateCocoaDto } from './dto/create-cocoa.dto.ts/create-cocoa.dto';
 import { UpdateCocoaDto } from './dto/update-cocoa.dto.ts/update-cocoa.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto/pagination-query.dto';
 
 @Controller('cocoa')
 export class CocoasController {
@@ -21,9 +22,9 @@ export class CocoasController {
     /////////////////////
 
     @Get()
-    async findAll(@Query() paginationQuery): Promise<Cocoa[]> {
+    async findAll(@Query() paginationQuery: PaginationQueryDto): Promise<Cocoa[]> {
         const { limit, offset } = paginationQuery;
-        const cocoas = await this.cocoasService.findAll();
+        const cocoas = await this.cocoasService.findAll(paginationQuery);
         return cocoas;
     }
 
@@ -33,11 +34,11 @@ export class CocoasController {
         return cocoa;
     }
 
-    @Get('flavors')
-    async findAllFlavors(): Promise<Cocoa[]> {
-        const cocoas = await this.cocoasService.findAll();
-        return cocoas;
-    }
+    // @Get('flavors')
+    // async findAllFlavors(): Promise<Cocoa[]> {
+    //     const cocoas = await this.cocoasService.findAll(PaginationQueryDto);
+    //     return cocoas;
+    // }
 
     @Post()
     async create(@Body() CreateCocoaDto: CreateCocoaDto): Promise<Cocoa> {

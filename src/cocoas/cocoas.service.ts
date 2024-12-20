@@ -3,8 +3,10 @@ import { Cocoa } from './entities/cocoa.entity';
 import { CreateCocoaDto } from './dto/create-cocoa.dto.ts/create-cocoa.dto';
 import { UpdateCocoaDto } from './dto/update-cocoa.dto.ts/update-cocoa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Flavor } from './entities/flavor.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto/pagination-query.dto';
+import { Event } from './entities/event.entity';
 @Injectable()
 export class CocoasService {
     constructor( 
@@ -12,6 +14,7 @@ export class CocoasService {
         private readonly cocoasRepository: Repository<Cocoa>,
         @InjectRepository(Flavor)
         private readonly flavorRepository: Repository<Flavor>,
+        private readonly datasource: DataSource,
     ) {}
 
     // private cocoas_list: Cocoa[] = [
@@ -47,13 +50,15 @@ export class CocoasService {
     //     }
     // ];
 
-    async findAll() {
+    async findAll(paginationQuery:PaginationQueryDto) {
+        const { limit, offset } = paginationQuery;
         return this.cocoasRepository.find({
             relations: {
                 flavors: true,
             },
-        }
-        );
+        skip: offset,
+        take: limit,    
+        });
     }
     
     async findOne(id: number) {
@@ -104,11 +109,36 @@ export class CocoasService {
 
     private async preloadFlavorByName(name: string): Promise<Flavor> {
         const existingFlavor = await this.cocoasRepository.findOne({ 
-            where: {name},
+            where: {title: name},
         });
         if (existingFlavor) {
             // return existingFlavor;
         }
         return this.flavorRepository.create({ name });
+    }
+
+    async recommendCocoa(cocoa: Cocoa) {
+        const queryRunner = this.datasource.createQueryRunner();
+        
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        
+        try {
+            cocoa.recommendations++;
+
+            const recommendEvent = new Event();
+            recommendEvent.name = 'recommend_cocoa';
+            recommendEvent.type = 'cocoa';
+            recommendEvent.payload = { cocoaId: cocoa.id };
+
+            await queryRunner.manager.save(cocoa);
+            await queryRunner.manager.save(recommendEvent);
+
+            await queryRunner.commitTransaction();
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
     }
 }
