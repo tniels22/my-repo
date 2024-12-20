@@ -5,6 +5,8 @@ import { CocoasController } from './cocoas/cocoas.controller';
 import { CocoasService } from './cocoas/cocoas.service';
 import { CocoasModule } from './cocoas/cocoas.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CocoaRatingModule } from './cocoa-rating/cocoa-rating.module';
+import { CocoaRatingService } from './cocoa-rating/cocoa-rating.service';
 
 @Module({
   imports: [CocoasModule,
@@ -18,8 +20,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    CocoaRatingModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CocoaRatingService],
 })
 export class AppModule {}
